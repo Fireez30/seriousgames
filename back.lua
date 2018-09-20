@@ -18,6 +18,7 @@ function init()
 	--[0]={x=100,y=30,a=0,speed=0.1,sprite=50,health=10,dead=0}
 	}
 	PLAYER_RESPAWN_POINT={x=75,y=65}
+	level = 0
 end
 
 function respawnPlayer()
@@ -112,13 +113,16 @@ function distance ( x1, y1, x2, y2 )
 end
 
 function solid(x,y)
-	return mget((x)//8,(y)//8) > 79
+	return mget((x)//8,(y)//8+p.world*17) > 79
 end
 
 function endCheck()
-	local id = mget(p.x,p.y+p.world*17)
+	local id = mget(p.x//8,p.y//8+p.world*17)
 	if id == 34 or id == 35 or id == 36 or id == 37 then 
-		print("Checkpoint !",p.x*8,p.y*8-10)
+		PLAYER_RESPAWN_POINT.x = PLAYER_RESPAWN_POINT.x + 15*8
+		PLAYER_RESPAWN_POINT.y = PLAYER_RESPAWN_POINT.y
+		level = level + 17*8
+		respawnPlayer()
 	end
 end
 function playerCollTopDown()
@@ -136,7 +140,7 @@ function playerCollTopDown()
 end
 
 function deathCheck()
-	if solid(p.x,p.y+p.world*17) then
+	if solid(p.x,p.y) then
 		p.health = 0
 	end
 
@@ -152,9 +156,10 @@ function playerCollPlatformer()
 		p.vx=0
 	end
 
-	if solid(p.x,p.y-8+p.vy) or solid(p.x+7,p.y+-8+p.vy) then
+	if solid(p.x,p.y+p.vy) or solid(p.x+7,p.y+p.vy) then
 		p.vy=0
 	end
+
 	if solid(p.x,p.y+8+p.vy) or solid(p.x+7,p.y+8+p.vy) then
 			p.vy=0
 		else
@@ -256,13 +261,13 @@ function TIC()
 	if btnp(5) then
 		switchWorld()
 	end
-		endCheck()
+		
 	inputMovement()
 --	playerCollTopDown()
 	playerCollPlatformer()
 	updatePlayerandCam()
 	deathCheck()
-
+	endCheck()
 	
 	
 
@@ -293,7 +298,7 @@ function TIC()
 	
 
 	cls()
-	map(0,p.world*17)
+	map(level,p.world*17)
 	spr(1,p.x,p.y,0,1,p.flip,0,1,1)
 -- if p.flip == 0 then
 --		spr(16,p.x+7,p.y,0,1,p.flip,0,1,1)
