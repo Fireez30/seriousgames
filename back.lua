@@ -19,6 +19,7 @@ function init()
 	}
 	PLAYER_RESPAWN_POINT={x=75,y=65}
 	level = 0
+	PAUSE = 0
 end
 
 function respawnPlayer()
@@ -113,16 +114,23 @@ function distance ( x1, y1, x2, y2 )
 end
 
 function solid(x,y)
-	return mget((x)//8,(y)//8+p.world*17) > 79
+	return mget(x//8+level,(y)//8+p.world*17) > 79
 end
 
 function endCheck()
-	local id = mget(p.x//8,p.y//8+p.world*17)
-	if id == 34 or id == 35 or id == 36 or id == 37 then 
-		PLAYER_RESPAWN_POINT.x = PLAYER_RESPAWN_POINT.x + 15*8
+	local id = mget(p.x//8+level,p.y//8+p.world*17)
+	if id == 39 then
+		mset(57,02,32)
+		mset(p.x//8+level,p.y//8+p.world*17,49)
+	end
+	if id == 34 or id == 35 or id == 36 or id == 37 then
+	print("Death!",p.x+level,p.y+p.world*17) 
+		PLAYER_RESPAWN_POINT.x = PLAYER_RESPAWN_POINT.x
 		PLAYER_RESPAWN_POINT.y = PLAYER_RESPAWN_POINT.y
-		level = level + 17*8
+		level = level + 31
 		respawnPlayer()
+	--	PAUSE = 1
+
 	end
 end
 function playerCollTopDown()
@@ -147,6 +155,10 @@ function deathCheck()
 	if p.health == 0 then
 		respawnPlayer()
 		p.health = 100
+	end
+
+	if p.y > 100*8 then
+		respawnPlayer()
 	end
 end
 
@@ -258,6 +270,7 @@ function inputMovement()
 end
 init()
 function TIC()
+if PAUSE == 0 then
 	if btnp(5) then
 		switchWorld()
 	end
@@ -300,9 +313,16 @@ function TIC()
 	cls()
 	map(level,p.world*17)
 	spr(1,p.x,p.y,0,1,p.flip,0,1,1)
+	print("Se deplacer : fleches", 5, 5)
+	print("Sauter : Z", 5, 15)
+	print("Changer de saison : X", 5, 25)
 -- if p.flip == 0 then
 --		spr(16,p.x+7,p.y,0,1,p.flip,0,1,1)
 --	else
 --		spr(16,p.x-7,p.y,0,1,p.flip,0,1,1)
 --	end
+else
+		map(8)
+		print("Felicitations !", 120,68)
+end
 end
